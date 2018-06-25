@@ -247,8 +247,8 @@ Page({
     //指令构造
     wx.writeBLECharacteristicValue({
       deviceId: deviceId,
-      serviceId: '0000FFF0-0000-1000-8000-00805F9B34FB',
-      characteristicId: '0000FFF1-0000-1000-8000-00805F9B34FB',
+      serviceId: '4fafc201-1fb5-459e-8fcc-c5c9c331914b',
+      characteristicId: 'beb5483e-36e1-4688-b7f5-ea07361b26a8',
       value: buffer,
       success: function (res) {
         //console.log('writeBLECharacteristicValue success', res.errMsg)
@@ -293,8 +293,8 @@ Page({
     //指令构造
     wx.writeBLECharacteristicValue({
       deviceId: deviceId,
-      serviceId: '0000FFF0-0000-1000-8000-00805F9B34FB',
-      characteristicId: '0000FFF1-0000-1000-8000-00805F9B34FB',
+      serviceId: '4fafc201-1fb5-459e-8fcc-c5c9c331914b',
+      characteristicId: 'beb5483e-36e1-4688-b7f5-ea07361b26a8',
       value: buffer,
       success: function (res) {
         //console.log('writeBLECharacteristicValue success', res.errMsg)

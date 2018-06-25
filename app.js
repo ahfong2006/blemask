@@ -143,7 +143,7 @@ App({
   wxValidate: (rules, messages) => new wxValidate(rules, messages),
 
   globalData: {
-    appid: "wx48d041b60b2c729a",
+    appid: "wxd725889186490630",
     api: "https://xincai.baimuv.com/app/ewei_shopv2_api.php?i=1",
     approot: "https://xincai.baimuv.com/addons/ewei_shopv2/",
     

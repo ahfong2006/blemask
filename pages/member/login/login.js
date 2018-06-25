@@ -34,7 +34,7 @@ Page({
   onShow: function () {
   },
   formsubmit(e) {
-    const objvalue = e.detail.value;
+    /*const objvalue = e.detail.value;
     if (this.data.isError) return false;
     if (!this.WxValidate.checkForm(e)) {
       const error = this.WxValidate.errorList[0];
@@ -47,10 +47,11 @@ Page({
     });
 
     //此处数据请求，暂时模拟
-    c.post('member/bind/login', objvalue, (res) => {
-      this.setData({
-        issubmit: false
-      });
+    //c.post('member/bind/login', objvalue, (res) => {
+    //  this.setData({
+    //    issubmit: false
+    //  });
+      res.status = 1;
       if (res.status === 1) {
         app.setCache('islogin', true);
         c.toast('登录成功');
@@ -62,6 +63,10 @@ Page({
       } else {
         c.alert(res.result.message);
       }
-    });
+    //});
+    */
+    app.setCache('islogin', true);
+    c.toast('login ok');
+    wx.redirectTo({url:'/pages/index/index'});
   }
 })

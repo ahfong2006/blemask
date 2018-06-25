@@ -23,6 +23,7 @@ Page({
   },
   onShow: function () {
     var self=this;
+   
     wx.getSystemInfo({
       success: function (res) {
         //console.log(res.system)
@@ -45,6 +46,8 @@ Page({
   //开启蓝牙
   open: function () {
     var self = this;
+    
+
     wx.openBluetoothAdapter({
       success: function (res) {
         //开启成功进行自检
@@ -75,7 +78,7 @@ Page({
 
     //001.监听蓝牙适配器状态
     wx.onBluetoothAdapterStateChange(function (res) {
-     //console.log('用户可能已经开启蓝牙');
+      //console.log('用户可能已经开启蓝牙');
       if (res.available) {
         self.init();
         self.setData({
@@ -96,12 +99,12 @@ Page({
     wx.onBluetoothDeviceFound(function (devices) {
       //console.log('new device list has founded')
       //console.dir(devices)
-     // console.log((app.ab2hex(devices.devices[0].advertisData)))
+      // console.log((app.ab2hex(devices.devices[0].advertisData)))
     })
     //003.监听处理Ble设备意外断开
     wx.onBLEConnectionStateChange(function (res) {
       if (!!res.connected){
-        //console.log('设备已经关闭');
+        console.log('设备已经关闭');
       }
     })
 
@@ -160,9 +163,11 @@ Page({
         
         for (var item in res.devices){
           if (ab2hex(res.devices[item].advertisData).length>32){
+            //c.toast(res.devices[item].deviceId);
             var macstring = ab2hex(res.devices[item].advertisData).substr(32, 12);
             macstring = macstring[0] + macstring[1] + ':' + macstring[2] + macstring[3] + ':' + macstring[4] + macstring[5] + ':' + macstring[6] + macstring[7] + ':' + macstring[8] + macstring[9] + ':' + macstring[10] + macstring[11];
           }
+          c.toast(res.devices[item].deviceId);
           res.devices[item].othermac = macstring;
           if (res.devices[item].deviceId == app.globalData.deviceId){
               res.devices[item].connect=1;
@@ -171,6 +176,7 @@ Page({
           {
             res.devices[item].connect = 0;
           }
+          //console.log(res.devices[item].othermac = macstring);
         }
         //console.log(res)
         self.setData({
@@ -234,10 +240,11 @@ Page({
               service: res.services
             });
             //如果包含本款设置的主服务UUID，记录设备的所有主服务
-            //console.log(res.services);
+            console.log(res.services);
             app.globalData.service = res.services;
             for (var item in res.services ){
-              if (res.services[item].uuid =='0000FFF0-0000-1000-8000-00805F9B34FB'){
+              if (res.services[item].uuid =='4fafc201-1fb5-459e-8fcc-c5c9c331914b'){
+                  console.log('Found device...');
                   app.globalData.service = res.services;             
                 }
             }
@@ -248,6 +255,7 @@ Page({
               wx.closeBLEConnection({
                 deviceId: deviceId
               })          
+              console.log('not led device!');
               return;                  
             }
             self.setData({
@@ -256,10 +264,39 @@ Page({
             //再通过服务查看特征值
             wx.getBLEDeviceCharacteristics({
               deviceId: deviceId,
-              serviceId: '0000FFF0-0000-1000-8000-00805F9B34FB',
+              serviceId: '4fafc201-1fb5-459e-8fcc-c5c9c331914b',
               success: function (res) {
-                //console.log('获取特征值成功');
+                console.log('获取特征值成功');
                 //监听特征值变化.并计算验证码
+                var hex = 'DA010880000c22'
+                console.log('本次执行命令:' + hex);
+                var typedArray = new Uint8Array(hex.match(/[\da-f]{2}/gi).map(function (h) {
+                  return parseInt(h, 16)
+                }))
+                var buffer = typedArray.buffer
+
+                wx.writeBLECharacteristicValue({
+                  deviceId: deviceId,
+                  serviceId: '4fafc201-1fb5-459e-8fcc-c5c9c331914b',
+                  characteristicId: 'beb5483e-36e1-4688-b7f5-ea07361b26a8',
+                  value: buffer,
+                  success: function (res) {
+                    console.log('device writeBLECharacteristicValue success', res.errMsg)
+                  }
+                })
+
+                wx.readBLECharacteristicValue({
+                  deviceId: deviceId,
+                  serviceId: '4fafc201-1fb5-459e-8fcc-c5c9c331914b',
+                  characteristicId: 'beb5483f-36e1-4688-b7f5-ea07361b26a8',
+                  success: function (res) {
+                    console.log('读取:', res.errCode)
+                  },
+                  fail: function(res){
+                    console.log('Device read characteristic failed ', res.errCode)
+                  }
+                })
+
                 wx.onBLECharacteristicValueChange(function (characteristic) {
                   //计算验证码
                   if (self.data.systemos==1){
@@ -268,19 +305,11 @@ Page({
                   else{
                     var macstring = deviceId;
                   }
-                 // console.log(macstring);
+                  console.log(macstring);
                   var randstring = ab2hex(characteristic.value);
                   var verifycode = getAuthenticationData(macstring, randstring);
                   //发送验证码
                   self.sendverify(verifycode);
-                })
-                wx.readBLECharacteristicValue({
-                  deviceId: deviceId,
-                  serviceId: '0000FFF0-0000-1000-8000-00805F9B34FB',
-                  characteristicId: '0000FFF3-0000-1000-8000-00805F9B34FB',
-                  success: function (res) {
-                    //console.log('读取:', res.errCode)
-                  }
                 })
                 //监听特征值变化.并计算验证码
               },
@@ -294,7 +323,7 @@ Page({
 
           },
           fail: function (res) {
-            //console.log('获取设备的服务失败')
+            console.log('获取设备的服务失败')
           },
           complete() {
             self.setData({
@@ -304,7 +333,7 @@ Page({
         })
       },
       fail: function (res) {
-        //console.log('no1');
+        console.log('no1');
         self.setData({
           ishow:0,
           showstatus: { text: '连接失败,请尝试重新连接!', status: 1 }
@@ -322,21 +351,25 @@ Page({
   sendverify: function (verifycode) {
     var self = this;
     var deviceId =app.globalData.deviceId;
+    console.log('send verify');
     //文档建议发送3次
     for (var i = 0; i < 3; i++) {
       var hex =verifycode[0] + verifycode[1];
       var typedArray = new Uint8Array(hex.match(/[\da-f]{2}/gi).map(function (h) {
         return parseInt(h, 16)
       }))
-      //console.log('本次执行命令:' + hex);
+      console.log('本次执行device命令:' + hex);
       var buffer = typedArray.buffer
       wx.writeBLECharacteristicValue({
         deviceId: deviceId,
-        serviceId: '0000FFF0-0000-1000-8000-00805F9B34FB',
-        characteristicId: '0000FFF3-0000-1000-8000-00805F9B34FB',
+        serviceId: '4fafc201-1fb5-459e-8fcc-c5c9c331914b',
+        characteristicId: 'beb5483e-36e1-4688-b7f5-ea07361b26a8',
         value: buffer,
         success: function (res) {
-          //console.log('writeBLECharacteristicValue success', res.errMsg)
+        console.log('writeBLECharacteristicValue success', res.errMsg)
+        },
+        fail:function(res){
+          console.log('writeBLECharacteristicValue success', res.errMsg)
         }
       })
     }
@@ -345,21 +378,21 @@ Page({
     setTimeout(function () {
       wx.onBLECharacteristicValueChange(function (characteristic) {
         var rescode = parseInt(ab2hex(characteristic.value),10);
-        if (rescode ==1) {
-          //console.log('通过验证21');
+        //if (rescode ==1) {
+          console.log('通过验证21');
           wx.notifyBLECharacteristicValueChange({
             state: true, 
             deviceId: deviceId,
-            serviceId: '0000FFF0-0000-1000-8000-00805F9B34FB',
-            characteristicId: '0000FFF4-0000-1000-8000-00805F9B34FB',
+            serviceId: '4fafc201-1fb5-459e-8fcc-c5c9c331914b',
+            characteristicId: 'beb5483f-36e1-4688-b7f5-ea07361b26a8',
             success: function (res) {
                 //读取电量信息
                 wx.onBLECharacteristicValueChange(function (res) {
                   var charge = ab2hex(res.value);
                   console.log('原始数据:'+charge);
                   app.globalData.bettery=parseInt('0x' + charge[8] + charge[9], 16);
-                  app.globalData.blecurrent = parseInt('' + charge[4] + charge[5] + charge[6] + charge[7]+'', 16)
-                  var dianya = parseInt('' + charge[0] + charge[1] + charge[2] + charge[3] + '', 16)
+                  app.globalData.blecurrent = parseInt('' + charge[4] + charge[5] + charge[6] + charge[7]+'', 10)
+                  var dianya = parseInt('' + charge[0] + charge[1] + charge[2] + charge[3] + '', 10)
                   console.log('电压:' + dianya);
                   console.log('电量:' + app.globalData.bettery);
                   console.log('电流:' + app.globalData.blecurrent);                  
@@ -376,7 +409,7 @@ Page({
             self.search();
           }, 0);    
           return;                  
-        }
+        /*}
         else {
           //验证码验证失败
           //console.log('no21');
@@ -387,12 +420,12 @@ Page({
           wx.closeBLEConnection({
             deviceId: deviceId
           })                            
-        }
+        }*/
       })
       wx.readBLECharacteristicValue({
         deviceId: deviceId,
-        serviceId: '0000FFF0-0000-1000-8000-00805F9B34FB',
-        characteristicId: '0000FFF3-0000-1000-8000-00805F9B34FB',
+        serviceId: '4fafc201-1fb5-459e-8fcc-c5c9c331914b',
+        characteristicId: 'beb5483f-36e1-4688-b7f5-ea07361b26a8',
         success: function (res) {
         }
       })
