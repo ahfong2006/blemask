@@ -167,7 +167,7 @@ Page({
             var macstring = ab2hex(res.devices[item].advertisData).substr(32, 12);
             macstring = macstring[0] + macstring[1] + ':' + macstring[2] + macstring[3] + ':' + macstring[4] + macstring[5] + ':' + macstring[6] + macstring[7] + ':' + macstring[8] + macstring[9] + ':' + macstring[10] + macstring[11];
           }
-          c.toast(res.devices[item].deviceId);
+          //c.toast(res.devices[item].deviceId);
           res.devices[item].othermac = macstring;
           if (res.devices[item].deviceId == app.globalData.deviceId){
               res.devices[item].connect=1;
@@ -288,7 +288,7 @@ Page({
                 wx.readBLECharacteristicValue({
                   deviceId: deviceId,
                   serviceId: '4fafc201-1fb5-459e-8fcc-c5c9c331914b',
-                  characteristicId: 'beb5483f-36e1-4688-b7f5-ea07361b26a8',
+                  characteristicId: 'beb5483e-36e1-4688-b7f5-ea07361b26a8',
                   success: function (res) {
                     console.log('读取:', res.errCode)
                   },
@@ -353,7 +353,7 @@ Page({
     var deviceId =app.globalData.deviceId;
     console.log('send verify');
     //文档建议发送3次
-    for (var i = 0; i < 3; i++) {
+    //for (var i = 0; i < 3; i++) {
       var hex =verifycode[0] + verifycode[1];
       var typedArray = new Uint8Array(hex.match(/[\da-f]{2}/gi).map(function (h) {
         return parseInt(h, 16)
@@ -372,13 +372,14 @@ Page({
           console.log('writeBLECharacteristicValue success', res.errMsg)
         }
       })
-    }
+    //}
 
     //文档建议500-1000MS后读取验证码
     setTimeout(function () {
       wx.onBLECharacteristicValueChange(function (characteristic) {
         var rescode = parseInt(ab2hex(characteristic.value),10);
-        //if (rescode ==1) {
+        console.log('rescode:' + rescode);
+        if (rescode ==3) {
           console.log('通过验证21');
           wx.notifyBLECharacteristicValueChange({
             state: true, 
@@ -409,7 +410,7 @@ Page({
             self.search();
           }, 0);    
           return;                  
-        /*}
+        }
         else {
           //验证码验证失败
           //console.log('no21');
@@ -420,12 +421,12 @@ Page({
           wx.closeBLEConnection({
             deviceId: deviceId
           })                            
-        }*/
+        }
       })
       wx.readBLECharacteristicValue({
         deviceId: deviceId,
         serviceId: '4fafc201-1fb5-459e-8fcc-c5c9c331914b',
-        characteristicId: 'beb5483f-36e1-4688-b7f5-ea07361b26a8',
+        characteristicId: 'beb5483e-36e1-4688-b7f5-ea07361b26a8',
         success: function (res) {
         }
       })
