@@ -8,7 +8,7 @@
     <navigator url='/pages/devices/devices' class="main">
       <view class="date">{{today}}</view>
       <view class="status" >{{showstatus.connected==0 ? '未连接' : '已连接'}}</view>
-      <view class="name" wx:if="{{showstatus.connected==1}}">BABYFACE</view>
+      <view class="name" wx:if="{{showstatus.connected==1}}">{{ deviceId }}</view>
     </navigator>
     <button open-type='share' class="side right">
       <image class="img" src="{{icon.share}}"></image>
@@ -16,19 +16,45 @@
   </view>
   <view class='content'>
     <view class='line'></view>
-    <image class='face' src="{{icon.face}}" mode='widthFix'></image>
+    <!-- image class='face' src="{{icon.face}}" mode='widthFix'></image-->
     <view class='overview'>
       <view class='item'>
         <image class='icon' src='{{icon.battery}}' mode='widthFix'></image>
-        <view class='text'>剩余电量</view>
+        <view class='text'>PCM</view>
         <view class='sub-text' >
-        {{showstatus.connected==0 ? '0%' : bettery==0 ? '获取中' : bettery+'%'  }}
+        {{showstatus.connected==0 ? '--' : bettery==0 ? '获取中' : tPCM  }}
+        </view>
+        <view class='text'>Heater</view>
+        <view class='sub-text' >
+        {{showstatus.connected==0 ? '--' : bettery==0 ? '获取中' : tHeater  }}
+        </view>
+        <view class='text'>Return</view>
+        <view class='sub-text' >
+        {{showstatus.connected==0 ? '--' : bettery==0 ? '获取中' : tReturn  }}
         </view>
       </view>
       <view class='item' bindtap='modeTap'>
         <image class='icon' src='{{icon.light}}' mode='widthFix'></image>
-        <view class='text'>模式选择</view>
-        <view class='sub-text'>{{modeSelected===0?stardardTextMap[stardardModeSelected]:'亮度:'+afterlightvalue+'%'}}</view>
+        <view class='text'>Relay State</view>
+        <view class='sub-text'>
+          {{showstatus.connected==0 ? '--' : bettery==0 ? '获取中' : nRelayState }}
+        </view>
+        <view class='text'>Valley Start1</view>
+        <view class='sub-text'>
+          {{showstatus.connected==0 ? '--' : bettery==0 ? '获取中' : valleyStart1 }}
+        </view>
+        <view class='text'>Valley Stop1</view>
+        <view class='sub-text'>
+          {{showstatus.connected==0 ? '--' : bettery==0 ? '获取中' : valleyStop1 }}
+        </view>
+        <view class='text'>Valley Start2</view>
+        <view class='sub-text'>
+          {{showstatus.connected==0 ? '--' : bettery==0 ? '获取中' : valleyStart2 }}
+        </view>
+        <view class='text'>Valley Stop2</view>
+        <view class='sub-text'>
+          {{showstatus.connected==0 ? '--' : bettery==0 ? '获取中' : valleyStop2 }}
+        </view>
       </view>
     </view>
     <view class='use-btn-wrap'>
@@ -39,8 +65,8 @@
         <view class='text'>{{countdown}}</view>
       </view>
       <view class='body use' bindtap='play' wx:else>
-        <view class='text'>开始</view>
-        <view class='text'>使用</view>
+        <view class='text'>Update</view>
+        <view class='text'>Status</view>
       </view>
     </view>
   </view>
@@ -54,16 +80,16 @@
     <image class='icon' src="{{icon.footer1}}" mode='widthFix'></image>
     <view class='text'>首页</view>
   </view>
-  <view bindtap='tourl' data-url='/pages/calendar/calendar' data-go="true" class='item'>
+  <!--view bindtap='tourl' data-url='/pages/calendar/calendar' data-go="true" class='item'>
     <image class='icon' src="{{icon.footer2}}" mode='widthFix'></image>
     <view class='text'>美颜日历</view>
-  </view>
+  </view-->
   <view bindtap='tourl' data-url='/pages/member/index/index' data-redirect='true'  class='item'>
     <image class='icon' src="{{icon.footer3}}" mode='widthFix'></image>
     <view class='text'>个人中心</view>
   </view>
-  <view bindtap='tourl' data-url='/pages/shop/shop' class='item'>
+  <!--view bindtap='tourl' data-url='/pages/shop/shop' class='item'>
     <image class='icon' src="{{icon.footer4}}" mode='widthFix'></image>
     <view class='text'>商城</view>
-  </view>
+  </view-->
 </view>

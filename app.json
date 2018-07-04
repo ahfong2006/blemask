@@ -21,7 +21,7 @@
     "backgroundColor": "#fafafa",
     "backgroundTextStyle": "light",
     "navigationBarBackgroundColor": "#fff",
-    "navigationBarTitleText": "BABYFACE",
+    "navigationBarTitleText": "PTCContoller",
     "navigationBarTextStyle": "black"
   },
   "debug": false

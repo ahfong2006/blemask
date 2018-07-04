@@ -243,7 +243,7 @@ Page({
             console.log(res.services);
             app.globalData.service = res.services;
             for (var item in res.services ){
-              if (res.services[item].uuid =='4fafc201-1fb5-459e-8fcc-c5c9c331914b'){
+              if (res.services[item].uuid =='0000ffe0-0000-1000-8000-00805f9b34fb'){
                   console.log('Found device...');
                   app.globalData.service = res.services;             
                 }
@@ -264,11 +264,11 @@ Page({
             //再通过服务查看特征值
             wx.getBLEDeviceCharacteristics({
               deviceId: deviceId,
-              serviceId: '4fafc201-1fb5-459e-8fcc-c5c9c331914b',
+              serviceId: '0000ffe0-0000-1000-8000-00805f9b34fb',
               success: function (res) {
                 console.log('获取特征值成功');
                 //监听特征值变化.并计算验证码
-                var hex = 'DA010880000c22'
+                var hex = '510D'
                 console.log('本次执行命令:' + hex);
                 var typedArray = new Uint8Array(hex.match(/[\da-f]{2}/gi).map(function (h) {
                   return parseInt(h, 16)
@@ -277,8 +277,8 @@ Page({
 
                 wx.writeBLECharacteristicValue({
                   deviceId: deviceId,
-                  serviceId: '4fafc201-1fb5-459e-8fcc-c5c9c331914b',
-                  characteristicId: 'beb5483e-36e1-4688-b7f5-ea07361b26a8',
+                  serviceId: '0000ffe0-0000-1000-8000-00805f9b34fb',
+                  characteristicId: '0000ffe1-0000-1000-8000-00805f9b34fb',
                   value: buffer,
                   success: function (res) {
                     console.log('device writeBLECharacteristicValue success', res.errMsg)
@@ -287,8 +287,8 @@ Page({
 
                 wx.readBLECharacteristicValue({
                   deviceId: deviceId,
-                  serviceId: '4fafc201-1fb5-459e-8fcc-c5c9c331914b',
-                  characteristicId: 'beb5483e-36e1-4688-b7f5-ea07361b26a8',
+                  serviceId: '0000ffe0-0000-1000-8000-00805f9b34fb',
+                  characteristicId: '0000ffe1-0000-1000-8000-00805f9b34fb',
                   success: function (res) {
                     console.log('读取:', res.errCode)
                   },
@@ -354,16 +354,18 @@ Page({
     console.log('send verify');
     //文档建议发送3次
     //for (var i = 0; i < 3; i++) {
-      var hex =verifycode[0] + verifycode[1];
+      //var hex =verifycode[0] + verifycode[1];
+      var hex = '510D';
       var typedArray = new Uint8Array(hex.match(/[\da-f]{2}/gi).map(function (h) {
         return parseInt(h, 16)
       }))
+
       console.log('本次执行device命令:' + hex);
       var buffer = typedArray.buffer
       wx.writeBLECharacteristicValue({
         deviceId: deviceId,
-        serviceId: '4fafc201-1fb5-459e-8fcc-c5c9c331914b',
-        characteristicId: 'beb5483e-36e1-4688-b7f5-ea07361b26a8',
+        serviceId: '0000ffe0-0000-1000-8000-00805f9b34fb',
+        characteristicId: '0000ffe1-0000-1000-8000-00805f9b34fb',
         value: buffer,
         success: function (res) {
         console.log('writeBLECharacteristicValue success', res.errMsg)
@@ -379,24 +381,42 @@ Page({
       wx.onBLECharacteristicValueChange(function (characteristic) {
         var rescode = parseInt(ab2hex(characteristic.value),10);
         console.log('rescode:' + rescode);
-        if (rescode ==3) {
+        //if (rescode ==3) {
+        if(true){
           console.log('通过验证21');
-          wx.notifyBLECharacteristicValueChange({
+
+        
+        //console.log('no verify');
+        wx.notifyBLECharacteristicValueChange({
             state: true, 
             deviceId: deviceId,
-            serviceId: '4fafc201-1fb5-459e-8fcc-c5c9c331914b',
-            characteristicId: 'beb5483f-36e1-4688-b7f5-ea07361b26a8',
+            serviceId: '0000ffe0-0000-1000-8000-00805f9b34fb',
+            characteristicId: '0000ffe1-0000-1000-8000-00805f9b34fb',
             success: function (res) {
                 //读取电量信息
                 wx.onBLECharacteristicValueChange(function (res) {
                   var charge = ab2hex(res.value);
                   console.log('原始数据:'+charge);
-                  app.globalData.bettery=parseInt('0x' + charge[8] + charge[9], 16);
-                  app.globalData.blecurrent = parseInt('' + charge[4] + charge[5] + charge[6] + charge[7]+'', 10)
-                  var dianya = parseInt('' + charge[0] + charge[1] + charge[2] + charge[3] + '', 10)
-                  console.log('电压:' + dianya);
-                  console.log('电量:' + app.globalData.bettery);
-                  console.log('电流:' + app.globalData.blecurrent);                  
+                  //app.globalData.bettery= 30 //parseInt('0x' + charge[8] + charge[9], 16);
+                  app.globalData.blecurrent = 30 //parseInt('' + charge[4] + charge[5] + charge[6] + charge[7]+'', 10)
+                  var dianya = 100 //parseInt('' + charge[0] + charge[1] + charge[2] + charge[3] + '', 10)
+                  
+                  app.globalData.tPCM = parseInt('' + charge[24] + charge[25]+'', 16)
+                  app.globalData.tHeater = parseInt('' + charge[26] + charge[27] + '', 16)
+                  app.globalData.tReturn = parseInt('' + charge[28] + charge[29] + '', 16)
+                  var relay = charge[30] + charge[31]
+                  app.globalData.nRelayState = ("00000000" + (parseInt(relay,16)).toString(2)).substr(-8);
+
+                  app.globalData.bettery = app.globalData.tPCM + ' ' + app.globalData.tHeater + ' ' + app.globalData.tReturn
+                  app.globalData.valleyStart1 = parseInt('' + charge[8] + charge[9] + '', 16) + ':' + parseInt('' + charge[10] + charge[11] + '', 16)
+                  app.globalData.valleyStop1 = parseInt('' + charge[12] + charge[13] + '', 16) + ':' + parseInt('' + charge[14] + charge[15] + '', 16)
+                  app.globalData.valleyStart2 = parseInt('' + charge[16] + charge[17] + '', 16) + ':' + parseInt('' + charge[18] + charge[19] + '', 16)
+                  app.globalData.valleyStop2 = parseInt('' + charge[20] + charge[21] + '', 16) + ':' + parseInt('' + charge[22] + charge[23] + '', 16)
+
+                  console.log('PCM:' + app.globalData.tPCM)
+                  console.log('HEATER:' + app.globalData.tHeater)
+                  console.log('RETURN:' + app.globalData.tReturn)                  
+                  console.log('RelayState:' + app.globalData.nRelayState)
                 })
               //读取电量信息
             }
@@ -422,14 +442,17 @@ Page({
             deviceId: deviceId
           })                            
         }
+        
       })
+      
       wx.readBLECharacteristicValue({
         deviceId: deviceId,
-        serviceId: '4fafc201-1fb5-459e-8fcc-c5c9c331914b',
-        characteristicId: 'beb5483e-36e1-4688-b7f5-ea07361b26a8',
+        serviceId: '0000ffe0-0000-1000-8000-00805f9b34fb',
+        characteristicId: '0000ffe1-0000-1000-8000-00805f9b34fb',
         success: function (res) {
         }
       })
+      
 
     }, 1000)
 

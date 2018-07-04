@@ -91,9 +91,11 @@ page {
 }
 .overview .item .text {
   margin-top: 7px;
+
 }
 .overview .item .sub-text {
-  margin-top: 5px;
+  margin-top: 10px;
+  font-size: 24px；
 }
 .overview .item:first-child {
   border-right: 1px solid rgba(255, 255, 255, .8)

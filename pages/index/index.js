@@ -39,6 +39,15 @@ Page({
     lightdrag: 50,
     timedrag: 50,
     bettery: 0,
+    tPCM:0,
+    tHeater:0,
+    tReturn:0,
+    nRelayState:0,
+    deviceId:'',
+    valleyStart1: '',
+    valleyStop1: '',
+    valleyStart2: '',
+    valleyStop2: '',
     blecurrent:0,
     afterlightvalue: 50,//最后确认灯的亮度值
     totaltime: 15,//默认时间
@@ -53,6 +62,15 @@ Page({
   onShow: function () {
     var showstatus = new Object();
     var bettery = app.globalData.bettery;
+    var tPCM = app.globalData.tPCM;
+    var tHeater = app.globalData.tHeater;
+    var tReturn = app.globalData.tReturn;
+    var nRelayState = app.globalData.nRelayState;
+    var deviceId = app.globalData.deviceId;
+    var valleyStart1 = app.globalData.valleyStart1;
+    var valleyStop1 = app.globalData.valleyStop1;
+    var valleyStart2 = app.globalData.valleyStart2;
+    var valleyStop2 = app.globalData.valleyStop2;
 
     if (bettery != 0 &&  app.globalData.deviceId==''){
       this.onLoad();
@@ -62,6 +80,15 @@ Page({
     this.setData({
       skin: app.getCache('skin'),
       bettery: bettery,
+      tPCM: tPCM,
+      tHeater: tHeater,
+      tReturn: tReturn,
+      nRelayState: nRelayState,
+      deviceId: deviceId,
+      valleyStart1: valleyStart1,
+      valleyStop1: valleyStop1,
+      valleyStart2: valleyStart2,
+      valleyStop2: valleyStop2,
       showstatus: showstatus
     });
     this.listenAdapterState();
@@ -73,8 +100,27 @@ Page({
     setInterval(()=>{
       //电量监控
       var bettery = app.globalData.bettery;
+      var tPCM = app.globalData.tPCM;
+      var tHeater = app.globalData.tHeater;
+      var tReturn = app.globalData.tReturn;
+      var nRelayState = app.globalData.nRelayState;
+      var deviceId = app.globalData.deviceId;
+      var valleyStart1 = app.globalData.valleyStart1;
+      var valleyStop1 = app.globalData.valleyStop1;
+      var valleyStart2 = app.globalData.valleyStart2;
+      var valleyStop2 = app.globalData.valleyStop2;
+
       this.setData({
-        bettery: bettery,        
+        bettery: bettery,      
+        tPCM: tPCM,
+        tHeater: tHeater,
+        tReturn: tReturn,
+        nRelayState: nRelayState,
+        deviceId: deviceId,
+        valleyStart1: valleyStart1,
+        valleyStop1: valleyStop1,
+        valleyStart2: valleyStart2,
+        valleyStop2: valleyStop2
       });
       if (bettery == 20 && app.globalData.isnotice==0){
         app.globalData.isnotice=1
@@ -86,6 +132,7 @@ Page({
         })       
       }
       //电流监控
+      /*
       var blecurrent = app.globalData.blecurrent;
       this.setData({
         blecurrent: blecurrent,
@@ -99,7 +146,7 @@ Page({
             }
             wx.showModal({
               title: '提示',
-              content: '请检查面膜是否断开!',
+              content: '请检查链接是否断开!',
               showCancel: false,
               confirmText: '我知道了',
             })
@@ -107,9 +154,9 @@ Page({
       }
       else if (blecurrent > 25) {
         app.globalData.isothernotice = 0
-      } 
+      }*/ 
 
-    },5000);
+    },1000);
   },
 
   getUserinfo() {
@@ -239,6 +286,7 @@ Page({
     //console.log('标准模式执行:' + level + ',' + ctype);   
     //指令构造
     var hex = 'fa010' + level + '0'+ctype+'000c22'
+    var hex = '510D'
     console.log('本次执行命令:'+hex);
     var typedArray = new Uint8Array(hex.match(/[\da-f]{2}/gi).map(function (h) {
       return parseInt(h, 16)
@@ -247,8 +295,8 @@ Page({
     //指令构造
     wx.writeBLECharacteristicValue({
       deviceId: deviceId,
-      serviceId: '4fafc201-1fb5-459e-8fcc-c5c9c331914b',
-      characteristicId: 'beb5483e-36e1-4688-b7f5-ea07361b26a8',
+      serviceId: '0000ffe0-0000-1000-8000-00805f9b34fb',
+      characteristicId: '0000ffe1-0000-1000-8000-00805f9b34fb',
       value: buffer,
       success: function (res) {
         //console.log('writeBLECharacteristicValue success', res.errMsg)
@@ -285,6 +333,7 @@ Page({
     //console.log(totaltime);    
     //指令构造
     var hex = 'fa02' + lightvalue + totaltime + '0c22'
+    var hex = '510D';
     console.log('本次执行命令:' + hex);
     var typedArray = new Uint8Array(hex.match(/[\da-f]{2}/gi).map(function (h) {
       return parseInt(h, 16)
@@ -293,8 +342,8 @@ Page({
     //指令构造
     wx.writeBLECharacteristicValue({
       deviceId: deviceId,
-      serviceId: '4fafc201-1fb5-459e-8fcc-c5c9c331914b',
-      characteristicId: 'beb5483e-36e1-4688-b7f5-ea07361b26a8',
+      serviceId: '0000ffe0-0000-1000-8000-00805f9b34fb',
+      characteristicId: '0000ffe1-0000-1000-8000-00805f9b34fb',
       value: buffer,
       success: function (res) {
         //console.log('writeBLECharacteristicValue success', res.errMsg)
@@ -319,7 +368,7 @@ Page({
     } 
 
     
-
+    let iCount = 0;
     //开始使用
     let time = this.data.modeSelected === 0 ? ((usetime ? usetime : 25)*60) : (this.data.usetime = this.data.totaltime, this.data.usetime * 60);
     totaltime = this.data.totaltime;
@@ -352,6 +401,7 @@ Page({
       });
     }
     function countdown() {
+      
 
       if (time >= 0) {   
        
@@ -359,6 +409,30 @@ Page({
           countdown: this.getFormatTime(time),
           usetime: time / 60
         });
+
+
+        //iCount = iCount+1
+        //if(iCount > 2){
+        //  iCount =0
+        var hex = '510D'
+        console.log('本次执行命令:' + hex)
+        var typedArray = new Uint8Array(hex.match(/[\da-f]{2}/gi).map(function (h) {
+          return parseInt(h, 16)
+        }))
+        var buffer = typedArray.buffer
+        var deviceId = app.globalData.deviceId
+
+        //指令构造
+        wx.writeBLECharacteristicValue({
+          deviceId: deviceId,
+          serviceId: '0000ffe0-0000-1000-8000-00805f9b34fb',
+          characteristicId: '0000ffe1-0000-1000-8000-00805f9b34fb',
+          value: buffer,
+          success: function (res) {
+            console.log('writeBLECharacteristicValue success', res.errMsg)
+          }
+        })
+        //}
       } else {
         if (this.data.modeSelected === 1){
           this.addhistory(tmptime, 1, this.data.lightvalue);

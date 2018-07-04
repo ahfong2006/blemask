@@ -5,7 +5,8 @@ App({
   onLaunch: function () {
     var e = this.getCache("userinfo");
     var skin = this.getCache('skin') || this.setSkin(1);
-    this.skin = skin;
+    //this.skin = skin;
+    /*
     ("" == e || e.needauth) && this.getUserInfo(function (e) { }, function (e, t) {
       var t = t ? 1 : 0,
         e = e || "";
@@ -14,6 +15,7 @@ App({
         url: "/pages/message/auth/index?close=" + t + "&text=" + e
       })
     })
+    */
   },
   requirejs: function (e) {
     return require("utils/" + e + ".js")
@@ -156,7 +158,15 @@ App({
     isnotice:0,//是否提醒过电量过低
     isothernotice: 0,//是否提醒过电流
     characteristic: {},//连接的主设备的特征值UUID
-    /*--蓝牙设备的信息--*/
+    tPCM:0,
+    tHeater:0,
+    tReturn:0,
+    nRelayState:0,
+    valleyStart1:'',
+    valleyStop1:'',
+    valleyStart2:'',
+    valleyStop2:'',
+     /*--蓝牙设备的信息--*/
   },
 
   //蓝牙通用方法
