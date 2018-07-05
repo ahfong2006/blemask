@@ -28,6 +28,10 @@ Page({
       {
         image: icon.skin_index6,
         text: '光影交错'
+      },
+      {
+        image: icon.skin_index7,
+        text: '光影7'
       }
     ]
   },

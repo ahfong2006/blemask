@@ -42,5 +42,7 @@ module.exports = {
   skin_home5: '/static/skins/home_bg5.png',
   skin_index5: '/static/skins/index_bg5.png',
   skin_home6: '/static/skins/home_bg6.png',
-  skin_index6: '/static/skins/index_bg6.png'
+  skin_index6: '/static/skins/index_bg6.png',
+  skin_home7: '/static/skins/home_bg7.png',
+  skin_index7: '/static/skins/index_bg7.png'
 }

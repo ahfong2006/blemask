@@ -5,7 +5,7 @@ App({
   onLaunch: function () {
     var e = this.getCache("userinfo");
     var skin = this.getCache('skin') || this.setSkin(1);
-    //this.skin = skin;
+    this.skin = skin;
     /*
     ("" == e || e.needauth) && this.getUserInfo(function (e) { }, function (e, t) {
       var t = t ? 1 : 0,
